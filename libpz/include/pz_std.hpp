@@ -2,16 +2,7 @@
 #define PZ_STD_HPP
 
 #include <pz_error.hpp>
-#include <vector>
-#include <string>
-#include <string_view>
-#include <unordered_set>
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <fstream>
-#include <sstream>
-#include <utility>
+
 
 namespace PzStd {
 class PzCore;
