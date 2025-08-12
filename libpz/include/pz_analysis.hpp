@@ -18,20 +18,25 @@ class PzStd::PzBuffer;
  *  @brief namespace PzStd
  */
 namespace PzStd {
-class PzAnalysis;
-class PzAnalysisImpl;
-enum class PzAnalysisType;
-class PzAnalysisExact;
-class PzAnalysisRegex;
+    class PzAnalysis;
+    class PzAnalysisImpl;
+    class PzAnalysisExact;
+    class PzAnalysisRegex;
+    enum class PzAnalysisType {
+        PZ_ANALYSIS_TYPE_EXACT,
+        PZ_ANALYSIS_TYPE_REGEX
+    };
 }; 
 
 /**  
  * @brief Enum for analysis types
  */
-enum class PzStd::PzAnalysisType{
-    EXACT,
-    REGEX
-};
+
+
+using PzCoreSPtr = std::shared_ptr<PzStd::PzCore>;
+using PzAnalysisImplUPtr = std::unique_ptr<PzStd::PzAnalysisImpl>;
+using PzAnalysisType = PzStd::PzAnalysisType;
+using PzErrorType = PzError::PzErrorType;
 
 /** 
  * @brief Abstract base class for analysis implementations
@@ -41,9 +46,9 @@ public:
     virtual ~PzAnalysisImpl() = default;
     virtual bool analyze(const std::string& pattern, std::vector<size_t>& results) = 0;
 protected:
-    PzStd::PzBuffer* buffer_;
+    PzCoreSPtr core_; 
     //explicit to ensure buffer type remains unchanged
-    explicit PzAnalysisImpl(PzStd::PzBuffer* buffer) : buffer_(buffer) {}
+    explicit PzAnalysisImpl(PzCoreSPtr core) : core_(std::move(core)) {}
 };
 
 /** 
@@ -51,11 +56,12 @@ protected:
  */
 class PzStd::PzAnalysisExact : public PzStd::PzAnalysisImpl {
 public:
-    explicit PzAnalysisExact(PzStd::PzBuffer* buffer) : PzAnalysisImpl(buffer) {}
+    explicit PzAnalysisExact(PzCoreSPtr core) : PzAnalysisImpl(core) {}
     
     bool analyze(const std::string& pattern, std::vector<size_t>& results) override {
-        if (!buffer_ || pattern.empty()) {
-            PzError::reportError(PzError::PzErrorType::PZ_INVALID_INPUT, "Invalid buffer or empty pattern");
+        PzBuffer* buffer = core_->getBuffer();
+        if (!buffer || pattern.empty()) {
+            PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Invalid buffer or empty pattern");
             return false;
         }
         try {
@@ -63,7 +69,7 @@ public:
            return true;
            // to catch exceptions, change to whatever is more suited later
         } catch (const std::exception& e) {
-            PzError::reportError(PzError::PzErrorType::PZ_ANALYSIS_FAILED, "Exact analysis failed: " + std::string(e.what()));
+            PzError::reportError(PzErrorType::PZ_ANALYSIS_FAILED, "Exact analysis failed: " + std::string(e.what()));
             return false;
         }
     }
@@ -74,11 +80,13 @@ public:
  */
 class PzStd::PzAnalysisRegex : public PzStd::PzAnalysisImpl {
 public:
-    explicit PzAnalysisRegex(PzStd::PzBuffer* buffer) : PzAnalysisImpl(buffer) {}
-    
+    explicit PzAnalysisRegex(PzCoreSPtr core) : PzAnalysisImpl(core) {}
+    bool analyze(const std::string& pattern, std::vector<size_t>& results) override;
+
     bool analyze(const std::string& pattern, std::vector<size_t>& results) override {
-        if (!buffer_ || pattern.empty()) {
-            PzError::reportError(PzError::PzErrorType::PZ_INVALID_INPUT, "Invalid buffer or empty pattern");
+        PzBuffer* buffer = core_->getBuffer();
+        if (!buffer || pattern.empty()) {
+            PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Invalid buffer or empty pattern");
             return false;
         }
         try {
@@ -86,7 +94,7 @@ public:
            return true;
            // to catch exceptions, change to whatever is more suited later
         } catch (const std::regex_error& e) {
-            PzError::reportError(PzError::PzErrorType::PZ_ANALYSIS_FAILED, "Regex analysis failed: " + std::string(e.what()));
+            PzError::reportError(PzErrorType::PZ_ANALYSIS_FAILED, "Regex analysis failed: " + std::string(e.what()));
             return false;
         }
     }
@@ -98,31 +106,18 @@ public:
 class PzStd::PzAnalysis {
 
 private:
-    std::shared_ptr<PzStd::PzCore> core_; // Shared pointer to PzCore
-    std::unique_ptr<PzStd::PzAnalysisImpl> impl_; // Current analysis implementation
-    PzAnalysisType currentType_ = PzStd::PzAnalysisType::EXACT; // Default type for now
-
-    // To access buffer from PzCore
-    PzStd::PzBuffer* getBuffer() {
-        if (!core_) {
-            PzError::reportError(PzError::PzErrorType::PZ_BUFFER_ACCESS_FAILED, "No valid PzCore instance");
-            return NULL;
-        }
-        PzStd::PzBuffer* buffer = core_->getBuffer();
-        if (!buffer) {
-            PzError::reportError(PzError::PzErrorType::PZ_BUFFER_ACCESS_FAILED, "Failed to access PzBuffer");
-        }
-        return buffer;
-    }
+    PzCoreSPtr core_; // Shared pointer to PzCore
+    PzAnalysisImplUPtr impl_; // Current analysis implementation
+    PzAnalysisType currentType_ = PzAnalysisType::PZ_ANALYSIS_TYPE_EXACT; // Default type for now
 
 public:
     /** 
      * @brief Constructor with move semantics
      */
-    explicit PzAnalysis(std::shared_ptr<PzStd::PzCore> core)
+    explicit PzAnalysis(PzCoreSPtr core)
         : core_(std::move(core)) {
         if (!core_) {
-            PzError::reportError(PzError::PzErrorType::PZ_INVALID_INPUT, "Null PzCore provided");
+            PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Null PzCore provided");
         }
     }
 
@@ -130,43 +125,49 @@ public:
      * @brief Move constructor
      * @brief Move assignemnt
      */
-    PzAnalysis(PzStd::PzAnalysis&& other) noexcept = default;
-    PzStd::PzAnalysis& operator=(PzStd::PzAnalysis&& other) noexcept = default;
+    PzAnalysis(PzAnalysis&& other) noexcept = default;
+    PzAnalysis& operator=(PzAnalysis&& other) noexcept = default;
 
     /** 
      * @brief Delete copy operations to prevent unnecessary copying
      */
-    PzAnalysis(const PzStd::PzAnalysis&) = delete;
-    PzStd::PzAnalysis& operator=(const PzStd::PzAnalysis&) = delete;
+    PzAnalysis(const PzAnalysis&) = delete;
+    PzAnalysis& operator=(const PzAnalysis&) = delete;
 
     /** 
      * @brief Public interface for analysis
      */
-    bool performAnalysis(PzStd::PzAnalysisType type, const std::string& pattern, std::vector<size_t>& results) {
+    bool performAnalysis(PzAnalysisType type, const std::string& pattern, std::vector<size_t>& results) {
         try {
             /** 
              * Implementation based on type
              */
             if (!impl_ || currentType_ != type) {
                 switch (type) {
-                    case PzStd::PzAnalysisType::EXACT:
-                        impl_ = std::make_unique<PzAnalysisExact>(getBuffer());
+                    case PzAnalysisType::PZ_ANALYSIS_TYPE_EXACT:
+                    {
+                        impl_ = std::make_unique<PzAnalysisExact>(core_);
                         break;
-                    case PzStd::PzAnalysisType::REGEX:
-                        impl_ = std::make_unique<PzAnalysisRegex>(getBuffer());
+                    }
+                    case PzAnalysisType::PZ_ANALYSIS_TYPE_REGEX:
+                    {
+                        impl_ = std::make_unique<PzAnalysisRegex>(core_);
                         break;
+                    }
                     default:
-                        PzError::reportError(PzError::PzErrorType::PZ_INVALID_ANALYSIS_TYPE, "Unknown analysis type");
+                    {
+                        PzError::reportError(PzErrorType::PZ_INVALID_ANALYSIS_TYPE, "Unknown analysis type");
                         return false;
+                    }
                 }
                 currentType_ = type;
             }
             return impl_->analyze(pattern, results);
         } catch (const std::exception& e) {
-            PzError::reportError(PzError::PzErrorType::PZ_ANALYSIS_FAILED, "Analysis failed: " + std::string(e.what())); //reason of failure
+            PzError::reportError(PzErrorType::PZ_ANALYSIS_FAILED, "Analysis failed: " + std::string(e.what())); //reason of failure
             return false;
         }
     }
 
 };
-#endif PZ_ANALYSIS_HPP
+#endif //PZ_ANALYSIS_HPP

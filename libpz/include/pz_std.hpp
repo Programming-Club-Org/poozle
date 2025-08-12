@@ -30,4 +30,4 @@ public:
   // eg. pz_buf_push(const std::string& words);
 };
 
-#endif PZ_STD_HPP
+#endif //PZ_STD_HPP

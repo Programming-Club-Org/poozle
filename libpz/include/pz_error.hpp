@@ -22,4 +22,4 @@ enum class PzError::PzErrorType {
   PZ_INVALID_ANALYSIS_TYPE
 };
 
-#endif PZ_ERROR_HPP
+#endif //PZ_ERROR_HPP
