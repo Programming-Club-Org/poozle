@@ -49,6 +49,27 @@ bool PzAnalysisRegex::analyze(const std::string& pattern, std::vector<size_t>& r
 }
 
 /**
+ * @brief Constructs a PzAnalysis object with the given shared pointer to PzCore.
+ * This constructor takes ownership of the provided core pointer. If the pointer is null, it reports an error.
+ * @param core Shared pointer to a PzCore instance.
+ */
+PzAnalysis::PzAnalysis(PzCoreSPtr core): core_(std::move(core)) {
+    if (core_ == nullptr) {
+        PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Null PzCore provided");
+    }
+}
+
+/**
+ * @brief Factory method to create a PzAnalysis instance.
+ * This static method creates and returns a PzAnalysis object by taking ownership of the given shared pointer to PzCore.
+ * @param core Shared pointer to a PzCore instance.
+ * @return PzAnalysis A new PzAnalysis object initialized with the given core.
+ */
+PzAnalysis PzAnalysis::create(PzCoreSPtr core) {
+    return PzAnalysis(std::move(core));
+}
+
+/**
  * @brief Performs analysis by selecting the appropriate implementation based on the analysis type.
  * @param type The type of analysis to perform (exact or regex).
  * @param pattern The pattern string to search for.
@@ -57,7 +78,7 @@ bool PzAnalysisRegex::analyze(const std::string& pattern, std::vector<size_t>& r
  */
 bool PzAnalysis::performAnalysis(PzAnalysisType type, const std::string& pattern, std::vector<size_t>& results) {
     try {
-        if (impl_==nullptr || currentType_ != type) {
+        if (impl_==nullptr || curr_type_ != type) {
             switch (type) {
                 case PzAnalysisType::PZ_ANALYSIS_TYPE_EXACT:
                     impl_ = std::make_unique<PzAnalysisExact>(core_);
@@ -69,7 +90,7 @@ bool PzAnalysis::performAnalysis(PzAnalysisType type, const std::string& pattern
                     PzError::reportError(PzErrorType::PZ_INVALID_ANALYSIS_TYPE, "Unknown analysis type");
                     return false;
             }
-            currentType_ = type;
+            curr_type_ = type;
         }
         return impl_->analyze(pattern, results);
     } catch (const std::exception& e) {

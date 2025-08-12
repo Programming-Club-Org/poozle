@@ -14,7 +14,7 @@ namespace PzStd {
     class PzAnalysisImpl; /** Abstract base class for analysis implementations */
     class PzAnalysisExact; /** Exact string matching implementation class */
     class PzAnalysisRegex; /** Regex string matching implementation class */  
-    enum class PzAnalysisType;
+    enum class PzAnalysisType; /** Enum for types of analysis */
 }; 
 
 
@@ -71,17 +71,11 @@ class PzStd::PzAnalysis {
 private:
     PzCoreSPtr core_; /** Shared pointer to PzCore */
     PzAnalysisImplUPtr impl_; /** Current analysis implementation */
-    PzAnalysisType currentType_ = PzAnalysisType::PZ_ANALYSIS_TYPE_EXACT; /** Default selected type **/
-    explicit PzAnalysis(PzCoreSPtr core) : core_(std::move(core)) { /** Construct private PzAnalysis with a core instance.*/
-        if (!core_) {
-            PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Null PzCore provided");
-        }
-    }
+    PzAnalysisType curr_type_ = PzAnalysisType::PZ_ANALYSIS_TYPE_EXACT; /** Default selected type **/
+    explicit PzAnalysis(PzCoreSPtr core); /** Construct private PzAnalysis with a core instance.*/
 
 public:
-    static PzAnalysis create(PzCoreSPtr core) { //** Method to create PzAnalysis objects accessible */
-        return PzAnalysis(std::move(core));
-    }
+    static PzAnalysis create(PzCoreSPtr core); //** Method to create PzAnalysis objects accessible */
 
     PzAnalysis(PzAnalysis&& other) noexcept = default; /** Move constructor */
     PzAnalysis& operator=(PzAnalysis&& other) noexcept = default; /** Move assignment operator */
