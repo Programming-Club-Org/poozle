@@ -10,16 +10,13 @@ class PzBuffer;
 
 using PzErr = PzError::PzErrorType;
 
-
 class PzStd::PzCore {
 private:
   PzErr pz_error = PzErr::PZ_NO_ERROR;
-
 
 public:
   // core operations on the object
   // eg. pz_core_input_buffer(const PzStd::PzBuffer& new_buffer);
 };
-
 
 #endif // PZ_STD_HPP
