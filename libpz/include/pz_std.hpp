@@ -2,12 +2,16 @@
 #define PZ_STD_HPP
 
 #include <pz_error.hpp>
+#include <memory>
 
 namespace PzStd {
 class PzCore;
 class PzBuffer;
-class PzAnaylysis;
+class PzAnalysis;
 
+/**
+ * @brief shared_ptr common typedefs
+ */
 using PzCoreSPtr = std::shared_ptr<PzCore>;
 using PzBufferSPtr = std::shared_ptr<PzBuffer>;
 using PzAnalysisSPtr = std::shared_ptr<PzAnalysis>;
@@ -21,7 +25,7 @@ private:
   PzStd::PzBufferSPtr pz_buffer;
   PzStd::PzAnalysisSPtr pz_analysis;
 
-  explicit PzStd::PzCore();
+  explicit PzCore();
 
 public:
   // core operations on the object
