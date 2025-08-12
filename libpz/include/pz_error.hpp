@@ -1,7 +1,6 @@
 #ifndef PZ_ERROR_HPP
 #define PZ_ERROR_HPP
-#include <string>
-#include <stdexcept>
+#include <pz_cxx_std.hpp>
 
 namespace PzError {
 enum class PzErrorType;

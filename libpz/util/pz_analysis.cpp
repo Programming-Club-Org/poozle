@@ -1,7 +1,7 @@
 #include <pz_analysis.hpp>  
 #include <pz_std.hpp>      
-#include <pz_error.hpp>    
-
+#include <pz_error.hpp> 
+using PzBufferSPtr = std::shared_ptr<PzStd::PzBuffer>;   
 namespace PzStd {
 
 /**
@@ -11,7 +11,7 @@ namespace PzStd {
  * @return true if search was successful, false otherwise.
  */
 bool PzAnalysisExact::analyze(const std::string& pattern, std::vector<size_t>& results) {
-    PzBuffer* buffer = core_ ? core_->getBuffer() : nullptr;
+    PzBufferSPtr* buffer = core_ ? core_->getBuffer() : nullptr;
     if (buffer == nullptr || pattern.empty()) {
         PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Invalid buffer or empty pattern");
         return false;
@@ -33,7 +33,7 @@ bool PzAnalysisExact::analyze(const std::string& pattern, std::vector<size_t>& r
  * @return true if search was successful, false otherwise.
  */
 bool PzAnalysisRegex::analyze(const std::string& pattern, std::vector<size_t>& results) {
-    PzBuffer* buffer = core_ ? core_->getBuffer() : nullptr;
+    PzBufferSPtr buffer = core_ ? core_->getBuffer() : nullptr;
     if (buffer == nullptr || pattern.empty()) {
         PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Invalid buffer or empty pattern");
         return false;
@@ -57,7 +57,7 @@ bool PzAnalysisRegex::analyze(const std::string& pattern, std::vector<size_t>& r
  */
 bool PzAnalysis::performAnalysis(PzAnalysisType type, const std::string& pattern, std::vector<size_t>& results) {
     try {
-        if (!impl_ || currentType_ != type) {
+        if (impl_==nullptr || currentType_ != type) {
             switch (type) {
                 case PzAnalysisType::PZ_ANALYSIS_TYPE_EXACT:
                     impl_ = std::make_unique<PzAnalysisExact>(core_);
