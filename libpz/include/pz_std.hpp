@@ -8,9 +8,11 @@
 namespace PzStd {
 class PzCore;
 class PzBuffer;
+enum class PzBufferType;
 }; // namespace PzStd
 
 using PzErr = PzError::PzErrorType;
+using PzBufferType = PzStd::PzBufferType;
 
 class PzStd::PzCore {
 private:
@@ -29,21 +31,21 @@ public:
  * during text processing operations. Multiple structures can be used
  * simultaneously based on access patterns.
  */
-enum class PzBType: int {
+enum class PzStd::PzBufferType: st32{
     PZ_BUF_TYPE_SEQUENTIAL = 1,      /**< Use vector for linear access (O(1) append, cache-friendly). */
     PZ_BUF_TYPE_FREQUENCY ,       /**< Track word frequencies (O(1) lookup via `unordered_map`). */
     PZ_BUF_TYPE_UNIQUE ,          /**< Store unique words only (O(1) checking via `unordered_set`). */
     PZ_BUF_TYPE_INDEXED ,         /**< Create word position index (O(log n) via `map`). */
     PZ_BUF_TYPE_SORTED            /**< Maintain sorted order (O(log n) via `set`). */
 };
-class PzStd::PzBuffer {
+class PzStd::PzBuffer{
 private:
 
      //Create buffer instance via smart pointer.
-    static std::unique_ptr<PzBuffer> create( PzBType flag =  PzBType::PZ_BUF_TYPE_SEQUENTIAL);  //Storage optimization mode (default: SEQUENTIAL).
+    static std::unique_ptr<PzBuffer> create(PzBufferType flag = PzBufferType::PZ_BUF_TYPE_SEQUENTIAL);  //Storage optimization mode (default: SEQUENTIAL).
   
      //Private constructor ensures only PzCore can create buffers.
-   explicit PzBuffer( PzBType flag =  PzBType::PZ_BUF_TYPE_SEQUENTIAL); 
+   explicit PzBuffer(PzBufferType flag = PzBufferType::PZ_BUF_TYPE_SEQUENTIAL); 
   
     ~PzBuffer() = default;  //Default destructor.
     
