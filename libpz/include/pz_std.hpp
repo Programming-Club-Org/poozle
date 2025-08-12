@@ -10,6 +10,7 @@ class PzBuffer;
 
 using PzErr = PzError::PzErrorType;
 
+
 class PzStd::PzCore {
 private:
   PzErr pz_error = PzErr::PZ_NO_ERROR;
