@@ -106,11 +106,11 @@ using PzErr = PzError::PzErrorType;
  * @brief Enum defining storage optimization modes for PzBuffer.
  */
 enum class PzStd::PzBufferTypes : int {
-    SEQUENTIAL,   /**< Use vector for fast linear access and appending */
-    FREQUENCY,    /**< Track frequency of each word using a hash map */
-    UNIQUE,       /**< Store only unique words via hash set */
-    INDEXED,      /**< Maintain a map indexing words to their positions */
-    SORTED        /**< Keep words sorted using a tree-based set */
+    PZ_BUF_TYPE_SEQUENTIAL,   /**< Use vector for fast linear access and appending */
+    PZ_BUF_TYPE_FREQUENCY,    /**< Track frequency of each word using a hash map */
+    PZ_BUF_TYPE_UNIQUE,       /**< Store only unique words via hash set */
+    PZ_BUF_TYPE_INDEXED,      /**< Maintain a map indexing words to their positions */
+    PZ_BUF_TYPE_SORTED        /**< Keep words sorted using a tree-based set */
 };
 
 /**
@@ -141,7 +141,7 @@ private:
      * @brief Private constructor to enforce creation by PzCore only.
      * @param flag Storage mode to use, defaults to SEQUENTIAL.
      */
-    explicit PzBuffer(PzBType flag = PzBType::SEQUENTIAL);
+    explicit PzBuffer(PzBType flag = PzBType::PZ_BUF_TYPE_SEQUENTIAL);
     ~PzBuffer() = default;  /**< Default destructor */
 
     // Move semantics
@@ -157,14 +157,13 @@ private:
      * @param flag Storage mode to use, defaults to SEQUENTIAL.
      * @return Unique pointer to new PzBuffer.
      */
-    static std::unique_ptr<PzBuffer> create(PzBType flag = PzBType::SEQUENTIAL);
+    static std::unique_ptr<PzBuffer> create(PzBType flag = PzBType::PZ_BUF_TYPE_SEQUENTIAL);
 
     // Input (loading) methods — private, only accessible to PzCore
 
     PzErr load_word(std::string&& word);
     PzErr load_word(const std::string& word);
     PzErr load_text(std::string_view text);
-    PzErr load_text(std::string&& text);
     PzErr load_words(const std::vector<std::string>& words);
     PzErr load_words(std::vector<std::string>&& words);
     PzErr load_from_file(const std::string& filename);
