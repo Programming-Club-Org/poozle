@@ -46,7 +46,7 @@ PzStd::PzCore::from_buffer(const PzStd::PzBuffer& buffer) {
 
 /**
 * @brif Reset the buffer with a new existing buffer.
-* @return PzCore A new PzCore object.
+* @return true if operation was successful, false otherwise.
 */
 PzStd::PzCore::set_buffer(const PzStd::PzBuffer& buffer) {
     if (buffer == nullptr) {
