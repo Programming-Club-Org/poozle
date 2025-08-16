@@ -1,0 +1,36 @@
+name: Clang Format Checker
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  clang-format-checking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          # Find all C/C++ source/header files
+          files=$(find . -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \))
+          echo "Checking formatting for files:"
+          echo "$files"
+
+          # Run clang-format in diff mode
+          failed=0
+          for f in $files; do
+              if ! clang-format -style=file "$f" | diff -u "$f" - >/dev/null; then
+                  echo "File $f is not properly formatted."
+                  failed=1
+              fi
+          done
+
+          if [ $failed -eq 1 ]; then
+              echo "Some files are not properly formatted. Run clang-format locally."
+              exit 1
+          fi
