@@ -32,13 +32,13 @@ private:
   PzStd::PzCoreSPtr pz_core_sptr;
 
   explicit PzCore();
-  PzCore(const PzStd::PzBuffer& buffer);
+  PzCore(const PzStd::PzBuffer &buffer);
 
 public:
   static PzStd::PzCore create();
-  static PzStd::PzCore from_buffer(const PzStd::PzBuffer& buffer);
+  static PzStd::PzCore from_buffer(const PzStd::PzBuffer &buffer);
 
-  bool set_buffer(const PzStd::PzBuffer& buffer);
+  bool set_buffer(const PzStd::PzBuffer &buffer);
   // core operations on the object
   // eg. pz_core_input_buffer(const PzStd::PzBuffer& new_buffer);
 };
