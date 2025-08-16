@@ -2,7 +2,7 @@
 #define PZ_STD_HPP
 
 #include <pz_error.hpp>
-#include <memory>
+#include <pz_cxx_std.hpp>
 
 namespace PzStd {
 class PzCore;
@@ -10,8 +10,12 @@ class PzBuffer;
 class PzAnalysis;
 
 /**
- * @brief shared_ptr common typedefs
+ * @brief unique_ptr and shared_ptr common typedefs
  */
+using PzCoreUPtr = std::unique_ptr<PzCore>;
+using PzBufferUPtr = std::unique_ptr<PzBuffer>;
+using PzAnalysisUPtr = std::unique_ptr<PzAnalysis>;
+
 using PzCoreSPtr = std::shared_ptr<PzCore>;
 using PzBufferSPtr = std::shared_ptr<PzBuffer>;
 using PzAnalysisSPtr = std::shared_ptr<PzAnalysis>;
@@ -21,13 +25,18 @@ using PzErr = PzError::PzErrorType;
 
 class PzStd::PzCore {
 private:
-  PzErr pz_error = PzErr::PZ_NO_ERROR;
-  PzStd::PzBufferSPtr pz_buffer;
-  PzStd::PzAnalysisSPtr pz_analysis;
+  PzStd::PzBufferSPtr pz_buffer_sptr;
+  PzStd::PzAnalysisSPtr pz_analysis_sptr;
+  PzStd::PzCoreSPtr pz_core_sptr;
 
   explicit PzCore();
+  PzCore(const PzStd::PzBuffer& buffer);
 
 public:
+  static PzStd::PzCore create();
+  static PzStd::PzCore from_buffer(const PzStd::PzBuffer& buffer);
+
+  bool set_buffer(const PzStd::PzBuffer& buffer);
   // core operations on the object
   // eg. pz_core_input_buffer(const PzStd::PzBuffer& new_buffer);
 };
