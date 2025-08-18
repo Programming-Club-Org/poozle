@@ -21,4 +21,4 @@ public:
   // eg. pz_core_input_buffer(const PzStd::PzBuffer& new_buffer);
 };
 
-#endif PZ_STD_HPP
+#endif // PZ_STD_HPP
