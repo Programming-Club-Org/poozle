@@ -1,43 +1,50 @@
 #!/usr/bin/env bash
 set -e
 
-# --- 1. Check if clang-format-16 exists ---
-CLANG_FORMAT_CMD="clang-format-16"
+CLANG_FORMAT_CMD=""
 
-if ! command -v "$CLANG_FORMAT_CMD" &>/dev/null; then
-    echo "clang-format-16 not found. Installing..."
+install_clang_format_linux() {
+    echo "Installing clang-format-16 on Linux..."
+    sudo apt update
+    sudo apt install -y clang-format-16
+    CLANG_FORMAT_CMD="clang-format-16"
+}
 
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Ubuntu/Debian
-        sudo apt update
-        sudo apt install -y clang-format-16
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
-        if ! command -v brew &>/dev/null; then
-            echo "Homebrew not found. Please install Homebrew first."
-            exit 1
-        fi
-        brew install llvm@16
-
-        # Get brew's llvm@16 bin directory
-        LLVM_PATH="$(brew --prefix llvm@16)/bin/clang-format"
-        if [[ -x "$LLVM_PATH" ]]; then
-            CLANG_FORMAT_CMD="$LLVM_PATH"
-        else
-            echo "Failed to find clang-format in llvm@16 bin directory."
-            exit 1
-        fi
-    else
-        echo "Unsupported OS. Please install clang-format-16 manually."
+install_clang_format_macos() {
+    echo "Installing clang-format-16 on macOS..."
+    if ! command -v brew &>/dev/null; then
+        echo "Homebrew not found. Please install Homebrew first."
         exit 1
     fi
-else
-    echo "clang-format-16 is already installed."
-fi
+    brew install llvm@16
+    CLANG_FORMAT_CMD="$(brew --prefix llvm@16)/bin/clang-format"
+}
 
-# --- 2. Run clang-format on all .cpp, .hpp, .c, .h files ---
-echo "Running $CLANG_FORMAT_CMD on source files..."
-find . -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.c" -o -name "*.h" \) \
+install_clang_format_windows() {
+    echo "Installing clang-format-16 on Windows (MSYS2/MinGW64)..."
+    if ! command -v pacman &>/dev/null; then
+        echo "MSYS2 pacman not found. Please install MSYS2 from https://www.msys2.org/"
+        exit 1
+    fi
+    pacman -Sy --noconfirm
+    pacman -S --needed --noconfirm mingw-w64-x86_64-clang16
+    CLANG_FORMAT_CMD="clang-format"
+}
+
+case "$OSTYPE" in
+    linux-gnu*)   install_clang_format_linux ;;
+    darwin*)      install_clang_format_macos ;;
+    msys*|cygwin*|win32) install_clang_format_windows ;;
+    *)
+        echo "Unsupported OS: $OSTYPE"
+        exit 1
+        ;;
+esac
+
+echo "Using $($CLANG_FORMAT_CMD --version)"
+
+echo "Running clang-format-16 on source files..."
+find . -type f \( -iname "*.cpp" -o -iname "*.hpp" -o -iname "*.c" -o -iname "*.h" \) \
     -exec "$CLANG_FORMAT_CMD" -i {} +
 
 echo "Formatting complete!"

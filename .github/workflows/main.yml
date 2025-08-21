@@ -9,28 +9,33 @@ jobs:
   clang-format-checking:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: Install clang-format-16 and colordiff
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-16 colordiff
 
       - name: Check formatting
         run: |
-          # Find all C/C++ source/header files
           files=$(find . -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \))
-          echo "Checking formatting for files:"
-          echo "$files"
 
-          # Run clang-format in diff mode
+          if [ -z "$files" ]; then
+            echo "No C/C++ files found."
+            exit 0
+          fi
+
           failed=0
           for f in $files; do
-              if ! clang-format -style=file "$f" | diff -u "$f" - >/dev/null; then
-                  echo "File $f is not properly formatted."
-                  failed=1
-              fi
+            diff_output=$(diff -u "$f" <(clang-format-16 -style=file "$f") || true)
+            if [ -n "$diff_output" ]; then
+              echo "❌ File $f is not properly formatted:"
+              echo "$diff_output" | colordiff | cat
+              failed=1
+            fi
           done
 
           if [ $failed -eq 1 ]; then
-              echo "Some files are not properly formatted. Run clang-format locally."
-              exit 1
+            echo "Some files are not properly formatted. Run clang-format-16 locally to fix."
+            exit 1
           fi
