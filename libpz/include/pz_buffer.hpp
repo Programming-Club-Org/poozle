@@ -11,7 +11,7 @@ namespace PzStd {
 
 class PzBuffer;          /** Buffer class for text storage and processing */
 enum class PzBufferType; /** Enum for buffer storage optimization modes */
-}; // namespace PzStd
+};                       // namespace PzStd
 
 /** @brief Custom type definitions used in buffer */
 using PzErrorType = PzError::PzErrorType;
@@ -88,10 +88,17 @@ private:
   // Input (loading) methods — private, only accessible to PzCore
   bool load_word(const std::string &word); /** Load a single word */
   bool load_text(std::string_view text);   /** Load a block of text */
-  bool load_words(const std::vector<std::string> &words); /** Load list of words into the buffer by copying. */
-  bool load_words(std::vector<std::string> &&words); /** Load words into the buffer by moving (more efficient). */
-  bool load_from_file(const std::string &filename); /** Load contents of a file */
-  bool load_from_file_chunked(const std::string &filename, ut64 chunk_size = 4096); /** Load file in chunks */
+  bool
+  load_words(const std::vector<std::string>
+                 &words); /** Load list of words into the buffer by copying. */
+  bool load_words(
+      std::vector<std::string> &&
+          words); /** Load words into the buffer by moving (more efficient). */
+  bool
+  load_from_file(const std::string &filename); /** Load contents of a file */
+  bool
+  load_from_file_chunked(const std::string &filename,
+                         ut64 chunk_size = 4096); /** Load file in chunks */
 
   /**
    * @brief Internal method to trigger processing based on storage mode after
@@ -107,13 +114,20 @@ private:
 
 public:
   // Accessors - Read-only methods to query stored data
-  const std::vector<std::string> &get_all_words() const noexcept; /** Get all words */
-  std::string_view get_word_at(ut64 index) const; /** Get word at a given index */
-  ut64 get_word_count(const std::string &word) const; /** Get the frequency of a specific word */
-  const std::unordered_map<std::string, ut64> & get_frequency_map() const noexcept; /** Get frequency map */
-  const std::unordered_set<std::string> & get_unique_words() const noexcept; /** Get unique words */
-  const std::set<std::string> & get_sorted_words() const noexcept; /** Get sorted unique words */
-  const std::vector<ut64> *get_positions_of(const std::string &word) const; /** Get positions of a given word */
+  const std::vector<std::string> &
+  get_all_words() const noexcept; /** Get all words */
+  std::string_view
+  get_word_at(ut64 index) const; /** Get word at a given index */
+  ut64 get_word_count(const std::string &word)
+      const; /** Get the frequency of a specific word */
+  const std::unordered_map<std::string, ut64> &
+  get_frequency_map() const noexcept; /** Get frequency map */
+  const std::unordered_set<std::string> &
+  get_unique_words() const noexcept; /** Get unique words */
+  const std::set<std::string> &
+  get_sorted_words() const noexcept; /** Get sorted unique words */
+  const std::vector<ut64> *get_positions_of(
+      const std::string &word) const; /** Get positions of a given word */
 
   // MetaData Access Methods - To provide quick information about the buffer's
   // content
