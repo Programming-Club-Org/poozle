@@ -109,9 +109,9 @@ bool PzBuffer::load_text(std::string_view text) {
   try {
     // tokenize the input text into words
     // need to convert string_view to string for std::istringstream processing
-    std::istringstream iss(std::string(text));
+    std::istringstream iss{std::string(text)};
     std::string word;
-    while (iss >> word) // Doubt: Showing Error on this Line in VS Code
+    while (iss >> word)
     {
       if (!load_word(std::move(word))) {
         throw std::runtime_error("Failed loading word during text load");
@@ -138,11 +138,10 @@ bool PzBuffer::load_words(const std::vector<std::string> &words) {
     return false;
   }
   try {
-    // Copy all words into internal storage directly
-    words_ = words;
-    // Update total characters count
-    total_characters_ = 0;
-    for (const auto &w : words_) {
+    // Append all words to the internal storage
+    words_.insert(words_.end(), words.begin(), words.end());
+    // Update total characters count by adding the characters of new words
+    for (const auto &w : words) {
       total_characters_ += w.size();
     }
     apply_storage_flag();
@@ -166,12 +165,13 @@ bool PzBuffer::load_words(std::vector<std::string> &&words) {
     return false;
   }
   try {
-    // Move all words into internal storage directly
-    words_ = std::move(words);
-    // Update total characters count
-    total_characters_ = 0;
-    for (const auto &w : words_) {
-      total_characters_ += w.size();
+    // Reserve memory to avoid reallocations
+    words_.reserve(words_.size()+words.size());
+
+    // Append by moving each element
+    for (std::string& word : words){
+      total_characters_ += word.size();
+      words_.push_back(std::move(word));
     }
     apply_storage_flag();
     return true;
