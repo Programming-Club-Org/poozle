@@ -84,8 +84,8 @@ private:
   friend class PzCore; /**< Friend class to access private constructor. */
 
   // Input (loading) methods — private, only accessible to PzCore
-  bool load_word(const std::string &word); /** Load a single word */
-  bool load_text(std::string_view text);   /** Load a block of text */
+  bool load_word(const std::string &word, bool needs_build); /** Load a single word */
+  bool load_text(std::string_view text, bool needs_build);   /** Load a block of text */
   bool
   load_words(const std::vector<std::string>
                  &words); /** Load list of words into the buffer by copying. */

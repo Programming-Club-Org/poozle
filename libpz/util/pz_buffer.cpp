@@ -24,6 +24,7 @@ PzBuffer::PzBuffer(PzBuffer &&other) noexcept
       sorted_words_(std::move(other.sorted_words_)) {
   // reset other's char count
   other.total_characters_ = 0;
+  other.storage_type_ = PzBufferType::PZ_BUF_TYPE_SEQUENTIAL;
 }
 
 /**
@@ -79,14 +80,16 @@ std::unique_ptr<PzBuffer> PzBuffer::create(PzBufferType flag) {
  * @param word Input word.
  * @return true if successful, false otherwise.
  */
-bool PzBuffer::load_word(const std::string &word) {
+bool PzBuffer::load_word(const std::string &word, bool needs_build) {
   if (word.empty()) {
     PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Empty word input");
     return false;
   }
   words_.push_back(word);
   total_characters_ += words_.back().size();
-  apply_storage_flag();
+  if (needs_build){
+    apply_storage_flag();
+  }
   return true;
 }
 
@@ -95,7 +98,7 @@ bool PzBuffer::load_word(const std::string &word) {
  * @param text Input text block.
  * @return true if successful, false otherwise.
  */
-bool PzBuffer::load_text(std::string_view text) {
+bool PzBuffer::load_text(std::string_view text, bool needs_build) {
   if (text.empty()) {
     PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Input text is empty");
     return false;
@@ -105,9 +108,11 @@ bool PzBuffer::load_text(std::string_view text) {
   std::istringstream iss{std::string(text)};
   std::string word;
   while (iss >> word) {
-    load_word(word);
+    load_word(word, false);
   }
-  apply_storage_flag();
+  if (needs_build){
+    apply_storage_flag();
+  }
   return true;
 }
 
@@ -170,7 +175,7 @@ bool PzBuffer::load_from_file(const std::string &filename) {
   std::string line;
   // Read file line-by-line and tokenize
   while (std::getline(file, line)) {
-    load_text(line);
+    load_text(line, false);
   }
   apply_storage_flag();
   return true;
@@ -200,7 +205,7 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
   std::string buffer(chunk_size, '\0');
   while (file.read(buffer.data(), chunk_size) || file.gcount() > 0) {
     std::string chunk = buffer.substr(0, file.gcount());
-    load_text(std::move(chunk));
+    load_text(std::move(chunk), false);
   }
   apply_storage_flag();
   return true;
