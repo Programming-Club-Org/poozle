@@ -87,7 +87,7 @@ bool PzBuffer::load_word(const std::string &word, bool needs_build) {
   }
   words_.push_back(word);
   total_characters_ += words_.back().size();
-  if (needs_build){
+  if (needs_build) {
     apply_storage_flag();
   }
   return true;
@@ -110,7 +110,7 @@ bool PzBuffer::load_text(std::string_view text, bool needs_build) {
   while (iss >> word) {
     load_word(word, false);
   }
-  if (needs_build){
+  if (needs_build) {
     apply_storage_flag();
   }
   return true;
