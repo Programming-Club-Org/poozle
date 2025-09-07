@@ -139,7 +139,6 @@ public:
 
   // Method to clear the buffer
   void clear() noexcept;
-  // empty commit change to check if further commits are getting pushed
 };
 
 #endif // PZ_BUFFER_HPP

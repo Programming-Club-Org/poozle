@@ -84,16 +84,10 @@ bool PzBuffer::load_word(const std::string &word) {
     PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Empty word input");
     return false;
   }
-  try {
-    words_.push_back(word);
-    total_characters_ += words_.back().size();
-    apply_storage_flag();
-    return true;
-  } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_PROCESSING_ERROR,
-                         "Failed to load word: " + std::string(e.what()));
-    return false;
-  }
+  words_.push_back(word);
+  total_characters_ += words_.back().size();
+  apply_storage_flag();
+  return true;
 }
 
 /**
@@ -106,23 +100,15 @@ bool PzBuffer::load_text(std::string_view text) {
     PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Input text is empty");
     return false;
   }
-  try {
-    // tokenize the input text into words
-    // need to convert string_view to string for std::istringstream processing
-    std::istringstream iss{std::string(text)};
-    std::string word;
-    while (iss >> word) {
-      if (!load_word(std::move(word))) {
-        throw std::runtime_error("Failed loading word during text load");
-      }
-    }
-    apply_storage_flag();
-    return true;
-  } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_PROCESSING_ERROR,
-                         "Error loading text: " + std::string(e.what()));
-    return false;
+  // tokenize the input text into words
+  // need to convert string_view to string for std::istringstream processing
+  std::istringstream iss{std::string(text)};
+  std::string word;
+  while (iss >> word) {
+    load_word(word);
   }
+  apply_storage_flag();
+  return true;
 }
 
 /**
@@ -136,20 +122,14 @@ bool PzBuffer::load_words(const std::vector<std::string> &words) {
                          "Input word vector is empty");
     return false;
   }
-  try {
-    // Append all words to the internal storage
-    words_.insert(words_.end(), words.begin(), words.end());
-    // Update total characters count by adding the characters of new words
-    for (const auto &w : words) {
-      total_characters_ += w.size();
-    }
-    apply_storage_flag();
-    return true;
-  } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_PROCESSING_ERROR,
-                         "Error loading words: " + std::string(e.what()));
-    return false;
+  // Append all words to the internal storage
+  words_.insert(words_.end(), words.begin(), words.end());
+  // Update total characters count by adding the characters of new words
+  for (const auto &w : words) {
+    total_characters_ += w.size();
   }
+  apply_storage_flag();
+  return true;
 }
 
 /**
@@ -163,22 +143,16 @@ bool PzBuffer::load_words(std::vector<std::string> &&words) {
                          "Input moved word vector is empty");
     return false;
   }
-  try {
-    // Reserve memory to avoid reallocations
-    words_.reserve(words_.size() + words.size());
+  // Reserve memory to avoid reallocations
+  words_.reserve(words_.size() + words.size());
 
-    // Append by moving each element
-    for (std::string &word : words) {
-      total_characters_ += word.size();
-      words_.push_back(std::move(word));
-    }
-    apply_storage_flag();
-    return true;
-  } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_PROCESSING_ERROR,
-                         "Error loading moved words: " + std::string(e.what()));
-    return false;
+  // Append by moving each element
+  for (std::string &word : words) {
+    total_characters_ += word.size();
+    words_.push_back(std::move(word));
   }
+  apply_storage_flag();
+  return true;
 }
 
 /**
@@ -193,21 +167,13 @@ bool PzBuffer::load_from_file(const std::string &filename) {
                          "File not found: " + filename);
     return false;
   }
-  try {
-    std::string line;
-    // Read file line-by-line and tokenize
-    while (std::getline(file, line)) {
-      if (!load_text(line)) {
-        throw std::runtime_error("Failed to load text line from file");
-      }
-    }
-    apply_storage_flag();
-    return true;
-  } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_PROCESSING_ERROR,
-                         "Error loading from file: " + std::string(e.what()));
-    return false;
+  std::string line;
+  // Read file line-by-line and tokenize
+  while (std::getline(file, line)) {
+    load_text(line);
   }
+  apply_storage_flag();
+  return true;
 }
 
 /**
@@ -231,22 +197,13 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
                          "File not found: " + filename);
     return false;
   }
-  try {
-    std::string buffer(chunk_size, '\0');
-    while (file.read(buffer.data(), chunk_size) || file.gcount() > 0) {
-      std::string chunk = buffer.substr(0, file.gcount());
-      if (!load_text(std::move(chunk))) {
-        throw std::runtime_error("Failed to load chunk from file");
-      }
-    }
-    apply_storage_flag();
-    return true;
-  } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_PROCESSING_ERROR,
-                         std::string("Error loading chunked file: ") +
-                             e.what());
-    return false;
+  std::string buffer(chunk_size, '\0');
+  while (file.read(buffer.data(), chunk_size) || file.gcount() > 0) {
+    std::string chunk = buffer.substr(0, file.gcount());
+    load_text(std::move(chunk));
   }
+  apply_storage_flag();
+  return true;
 }
 
 // Processing
@@ -402,10 +359,7 @@ void PzBuffer::clear() noexcept {
   word_positions_.clear();
   sorted_words_.clear();
   total_characters_ = 0;
-  storage_type_ =
-      PzBufferType::PZ_BUF_TYPE_SEQUENTIAL; // only if the user has some
-                                            // function avaiable to him by
-                                            // PzCore to change the flag
+  storage_type_ = PzBufferType::PZ_BUF_TYPE_SEQUENTIAL;
 }
 
 } // namespace PzStd
