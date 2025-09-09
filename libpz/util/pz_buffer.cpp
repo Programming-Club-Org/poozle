@@ -203,7 +203,7 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
     return false;
   }
   std::string buffer(chunk_size, '\0');
-  std::string carry_over; //Holds partial words from previous chunk
+  std::string carry_over; // Holds partial words from previous chunk
   while (file.read(buffer.data(), chunk_size) || file.gcount() > 0) {
     std::string chunk = buffer.substr(0, file.gcount());
     std::string combined_chunk = carry_over + chunk;
@@ -214,7 +214,8 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
     // Reset carry_over to be empty for this iteration
     carry_over.clear();
 
-    if (last_space != std::string::npos && last_space < combined_chunk.size() - 1){
+    if (last_space != std::string::npos &&
+        last_space < combined_chunk.size() - 1) {
       // if a word is split, take the last word as the carry_over
       carry_over = combined_chunk.substr(last_space + 1);
       combined_chunk = combined_chunk.substr(0, last_space + 1);
@@ -224,7 +225,7 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
   }
 
   // After the loop, process any remaining content in carry_over
-  if (!carry_over.empty()){
+  if (!carry_over.empty()) {
     load_text(carry_over, false);
   }
   apply_storage_flag();
