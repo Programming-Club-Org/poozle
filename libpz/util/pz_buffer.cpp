@@ -214,13 +214,21 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
     // Reset carry_over to be empty for this iteration
     carry_over.clear();
 
-    if (last_space != std::string::npos &&
-        last_space < combined_chunk.size() - 1) {
+    if (last_space == std::string::npos){
+      // No whitespace in combined_chunk, so keep whole thing as carry_over
+      carry_over = std::move(combined_chunk);
+      continue; // read next chunk and prepend carry_over
+    }
+
+    if (last_space < combined_chunk.size() - 1) { 
       // if a word is split, take the last word as the carry_over
       carry_over = combined_chunk.substr(last_space + 1);
       combined_chunk = combined_chunk.substr(0, last_space + 1);
+    }else{  // if last_space = combined_chunk.size() - 1
+      // last_space is at the very end: combined_chunk already ends with whitespace
+      // carry_over stays empty and combined_chunk contains everything up to that whitespace
     }
-    // Now call load_text with the complete part of the chunk
+   
     load_text(combined_chunk, false);
   }
 
