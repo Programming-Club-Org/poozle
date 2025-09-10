@@ -11,6 +11,8 @@ class PzCore;
 class PzBuffer;
 class PzAnalysis;
 
+enum class PzOptions;
+
 /**
  * @brief unique_ptr and shared_ptr common typedefs
  */

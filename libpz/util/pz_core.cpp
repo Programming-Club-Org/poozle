@@ -1,9 +1,9 @@
 #include <pz_error.hpp>
-#include <pz_std.hpp>
+#include <pz_std.hpp>options
 
 /**
- * @brief Constructs PzCore, empty PzBuffer and PzAnalysis object. Also pass core's
- * shared pointer to them.
+ * @brief Constructs PzCore, empty PzBuffer and PzAnalysis object. Also pass
+ * core's shared pointer to them.
  */
 PzStd::PzCore::PzCore() {
   this->pz_core_sptr = std::make_shared<PzStd::PzCore>(this);
@@ -16,8 +16,8 @@ PzStd::PzCore::PzCore() {
 }
 
 /**
- * @brief Constructs PzCore, existing PzBuffer and PzAnalysis object. Also pass core's
- * shared pointer to them.
+ * @brief Constructs PzCore, existing PzBuffer and PzAnalysis object. Also pass
+ * core's shared pointer to them.
  */
 PzStd::PzCore::PzCore(const PzStd::PzBuffer &buffer) {
   this->pz_core_sptr = std::make_shared<PzStd::PzCore>(this);
@@ -55,10 +55,16 @@ PzStd::PzCore::from_buffer(const PzStd::PzBuffer &buffer) {
 }
 
 /**
+ * @brief Get shared pointer to current buffer
+ * @return shared pointer to buffer
+ */
+PzStd::PzCore::get_buffer() { return this->buffer_sptr; }
+
+/**
  * @brif Reset the buffer with a new existing buffer.
  * @return true if operation was successful, false otherwise.
  */
-PzStd::PzCore::set_buffer(const PzStd::PzBuffer &buffer) {
+bool ::PzCore::set_buffer(const PzStd::PzBuffer &buffer) {
   if (buffer == nullptr) {
     PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Invalid buffer");
     return false;
@@ -71,6 +77,18 @@ PzStd::PzCore::set_buffer(const PzStd::PzBuffer &buffer) {
  * @brif Perform analysis and store results in the given vector reference
  * @return true if operation was successful, false otherwise.
  */
-bool PzStd::PzCore::performAnalysis(PzAnalysisType type, const std::string &pattern, std::vector<size_t> &results) {
-    return this->analysis_sptr->performAnalysis(type, pattern, results);
+bool PzStd::PzCore::performAnalysis(PzAnalysisType type,
+                                    const std::string &pattern,
+                                    std::vector<size_t> &results,
+                                    const unsigned num_threads) {
+  // TODO: multithread
+  return this->analysis_sptr->performAnalysis(type, pattern, results);
+}
+
+/**
+ * @brief get size of buffer
+ * @return size of buffer
+ */
+std::option<size_t> PzStd::PzCore::buffer_size() const {
+  return this->buffer ? this->buffer->size() : nullopt;
 }
