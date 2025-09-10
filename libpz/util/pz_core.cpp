@@ -81,7 +81,7 @@ bool PzStd::PzCore::performAnalysis(PzAnalysisType type,
                                     const std::string &pattern,
                                     std::vector<size_t> &results,
                                     const unsigned num_threads) {
-  // TODO: multithread
+  // TODO: multithread, include search options
   return this->analysis_sptr->performAnalysis(type, pattern, results);
 }
 

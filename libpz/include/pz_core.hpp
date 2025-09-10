@@ -6,7 +6,7 @@
 enum class PzStd::PzOptions {
   CASE_SENSITIVE, // C and c will match C or c
   SEARCH_BY_LINE, // include whole line as a result if match present in line
-  WHOLE_WORDS, // matches only whole words, "there" does not match "the"
+  WHOLE_WORDS,    // matches only whole words, "there" does not match "the"
 }
 
 class PzStd::PzCore {
