@@ -1,6 +1,6 @@
+#include <pz_core.hpp>
 #include <pz_error.hpp>
 #include <pz_std.hpp>
-#include <pz_core.hpp>
 
 /**
  * @brief Constructs PzCore, empty PzBuffer and PzAnalysis object. Also pass

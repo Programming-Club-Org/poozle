@@ -24,6 +24,9 @@ private:
   PzCore &operator=(const PzCore &) =
       delete; //   Deleted copy assignment - force move semantics.
 
+  PzCore(PzCore &&other) noexcept;
+  PzCore &operator=(PzCore &&other) noexcept;
+
 public:
 };
 
