@@ -14,7 +14,6 @@ PzStd::PzCore::PzCore() {
 
   PzStd::PzAnalysis analysis_obj = PzAnalysis::create(this->pz_core_sptr);
   this->analysis_sptr = std::shared_ptr<PzStd::PzAnalysis>(analysis_obj);
-  this
 }
 
 /**
@@ -28,4 +27,20 @@ PzStd::PzCore::PzCore(const PzStd::PzBuffer &buffer) {
 
   PzStd::PzAnalysis analysis_obj = PzAnalysis::create(this->pz_core_sptr);
   this->analysis_sptr = std::shared_ptr<PzStd::PzAnalysis>(analysis_obj);
+}
+
+PzStd::PzCore::PzCore(PzCore &&other) noexcept {
+  // Transfer ownership
+  this->pz_core_sptr = std::make_shared<PzStd::PzCore>(this);
+  this->buffer_sptr = std::move(other.buffer_sptr);
+  this->analysis_sptr = std::move(other.analysis_sptr);
+}
+
+PzStd::PzCore &PzStd::PzCore::operator=(PzCore &&other) noexcept {
+  if (this != &other) {
+    // Release any existing resources (shared_ptr will auto-handle)
+    this->buffer_sptr = std::move(other.buffer_sptr);
+    this->analysis_sptr = std::move(other.analysis_sptr);
+  }
+  return *this;
 }
