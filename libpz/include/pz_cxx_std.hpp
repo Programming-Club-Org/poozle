@@ -15,5 +15,6 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <optional>
 
 #endif // PZ_CXX_STD_HPP
