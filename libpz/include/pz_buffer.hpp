@@ -9,7 +9,7 @@ class PzStd::PzCore;
 /** @brief namespace PzStd */
 namespace PzStd {
 enum class PzBufferType; /** Enum for buffer storage optimization modes */
-};                       // namespace PzStd
+}; // namespace PzStd
 
 /** @brief Custom type definitions used in buffer */
 using PzErrorType = PzError::PzErrorType;
@@ -43,7 +43,7 @@ private:
   ut64 total_characters_ = 0; /**< Total number of characters stored */
 
   // Create buffer instance via smart pointer.
-  static std::unique_ptr<PzBuffer>
+  static std::shared_ptr<PzBuffer>
   create(PzBufferType flag =
              PzBufferType::PZ_BUF_TYPE_SEQUENTIAL); // Storage optimization
                                                     // (default: SEQUENTIAL).

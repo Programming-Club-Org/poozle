@@ -61,8 +61,8 @@ PzBuffer &PzBuffer::operator=(PzBuffer &&other) noexcept {
  * @param flag Storage type flag.
  * @return Unique pointer to a new PzBuffer.
  */
-std::unique_ptr<PzBuffer> PzBuffer::create(PzBufferType flag) {
-  return std::unique_ptr<PzBuffer>(new PzBuffer(flag));
+std::shared_ptr<PzBuffer> PzBuffer::create(PzBufferType flag) {
+  return std::shared_ptr<PzBuffer>(new PzBuffer(flag));
 }
 
 // TODO: [Configurable Token Delimiter]
