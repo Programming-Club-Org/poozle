@@ -61,8 +61,8 @@ PzBuffer &PzBuffer::operator=(PzBuffer &&other) noexcept {
  * @param flag Storage type flag.
  * @return Unique pointer to a new PzBuffer.
  */
-std::shared_ptr<PzBuffer> PzBuffer::create(PzBufferType flag) {
-  return std::shared_ptr<PzBuffer>(new PzBuffer(flag));
+PzBufferSPtr PzBuffer::create(PzBufferType type) {
+  return PzBufferSPtr(new PzBuffer(type));
 }
 
 // TODO: [Configurable Token Delimiter]
@@ -82,7 +82,7 @@ std::shared_ptr<PzBuffer> PzBuffer::create(PzBufferType flag) {
  */
 bool PzBuffer::load_word(const std::string &word, bool needs_build) {
   if (word.empty()) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Empty word input");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT, "Empty word input");
     return false;
   }
   words_.push_back(word);
@@ -100,7 +100,7 @@ bool PzBuffer::load_word(const std::string &word, bool needs_build) {
  */
 bool PzBuffer::load_text(std::string_view text, bool needs_build) {
   if (text.empty()) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Input text is empty");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT, "Input text is empty");
     return false;
   }
   // tokenize the input text into words
@@ -123,8 +123,8 @@ bool PzBuffer::load_text(std::string_view text, bool needs_build) {
  */
 bool PzBuffer::load_words(const std::vector<std::string> &words) {
   if (words.empty()) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT,
-                         "Input word vector is empty");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT,
+                          "Input word vector is empty");
     return false;
   }
   // Append all words to the internal storage
@@ -144,8 +144,8 @@ bool PzBuffer::load_words(const std::vector<std::string> &words) {
  */
 bool PzBuffer::load_words(std::vector<std::string> &&words) {
   if (words.empty()) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT,
-                         "Input moved word vector is empty");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT,
+                          "Input moved word vector is empty");
     return false;
   }
   // Reserve memory to avoid reallocations
@@ -168,8 +168,8 @@ bool PzBuffer::load_words(std::vector<std::string> &&words) {
 bool PzBuffer::load_from_file(const std::string &filename) {
   std::ifstream file(filename);
   if (!file) {
-    PzError::reportError(PzErrorType::PZ_FILE_NOT_FOUND,
-                         "File not found: " + filename);
+    PzError::report_error(PzErrorType::PZ_FILE_NOT_FOUND,
+                          "File not found: " + filename);
     return false;
   }
   std::string line;
@@ -191,15 +191,15 @@ bool PzBuffer::load_from_file_chunked(const std::string &filename,
                                       ut64 chunk_size) {
   // Add a guard to check for chunk_size > 0
   if (chunk_size == 0) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT,
-                         "Chunk size cannot be zero");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT,
+                          "Chunk size cannot be zero");
     return false;
   }
 
   std::ifstream file(filename, std::ios::binary);
   if (!file) {
-    PzError::reportError(PzErrorType::PZ_FILE_NOT_FOUND,
-                         "File not found: " + filename);
+    PzError::report_error(PzErrorType::PZ_FILE_NOT_FOUND,
+                          "File not found: " + filename);
     return false;
   }
   std::string buffer(chunk_size, '\0');

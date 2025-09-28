@@ -1,30 +1,18 @@
 project('poozle', 'cpp',
-  version: 'v0.1.0',
-  meson_version: '>=0.57.0',
-  default_options: [
-    'buildtype=debugoptimized',
-    'b_vscrt=from_buildtype',
-    'warning_level=1',
+  version : '0.1.0',
+  default_options : [
+    'cpp_std=c++17',
+    'warning_level=2',   # Meson’s built-in warning level
   ]
 )
 
-pz_srcs = [
-    'api/pz_api_descs.cpp',
-]
-
-pz_inc_dirs = include_directories('libpz/include')
-
-poozle_lib = library(
-  'poozle',
-  pz_srcs,
-  include_directories: pz_inc_dirs,
-  install: true
+cc = meson.get_compiler('cpp')
+add_project_arguments(
+  cc.get_supported_arguments([
+    '-Wall',
+    '-Wextra',
+  ]),
+  language : 'cpp'
 )
 
-poozle_dep = declare_dependency(
-  include_directories: pz_inc_dirs,
-  link_with: poozle_lib
-)
-
-install_subdir('libpz', install_dir: get_option('includedir'))
-install_headers('api/pz_api_descs.hpp', subdir: 'poozle')
+subdir('libpz')

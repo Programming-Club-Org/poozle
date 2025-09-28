@@ -1,3 +1,5 @@
+#include <pz_analysis.hpp>
+#include <pz_buffer.hpp>
 #include <pz_core.hpp>
 #include <pz_error.hpp>
 #include <pz_std.hpp>
@@ -7,12 +9,9 @@
  * core's shared pointer to them.
  */
 PzStd::PzCore::PzCore() {
-  this->pz_core_sptr = std::make_shared<PzStd::PzCore>(this);
-
   this->pz_buffer_sptr = PzStd::PzBuffer::create();
 
-  PzStd::PzAnalysis analysis_obj = PzAnalysis::create(this->pz_core_sptr);
-  this->pz_analysis_sptr = std::shared_ptr<PzStd::PzAnalysis>(analysis_obj);
+  this->pz_analysis_sptr = PzStd::PzAnalysis::create(shared_from_this());
 }
 
 /**
@@ -20,17 +19,13 @@ PzStd::PzCore::PzCore() {
  * core's shared pointer to them.
  */
 PzStd::PzCore::PzCore(const std::shared_ptr<PzBuffer> buffer) {
-  this->pz_core_sptr = std::make_shared<PzStd::PzCore>(this);
-
   this->pz_buffer_sptr = buffer;
 
-  PzStd::PzAnalysis analysis_obj = PzAnalysis::create(this->pz_core_sptr);
-  this->pz_analysis_sptr = std::shared_ptr<PzStd::PzAnalysis>(analysis_obj);
+  this->pz_analysis_sptr = PzStd::PzAnalysis::create(shared_from_this());
 }
 
 PzStd::PzCore::PzCore(PzCore &&other) noexcept {
   // Transfer ownership
-  this->pz_core_sptr = std::make_shared<PzStd::PzCore>(this);
   this->pz_buffer_sptr = std::move(other.pz_buffer_sptr);
   this->pz_analysis_sptr = std::move(other.pz_analysis_sptr);
 }

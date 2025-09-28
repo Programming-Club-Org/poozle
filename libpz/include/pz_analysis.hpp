@@ -1,11 +1,11 @@
 #ifndef PZ_ANALYSIS_HPP
 #define PZ_ANALYSIS_HPP
+
+#include <pz_core.hpp>
 #include <pz_cxx_std.hpp>
 #include <pz_error.hpp>
 #include <pz_std.hpp>
 #include <stdexcept>
-class PzStd::PzCore;
-class PzStd::PzBuffer;
 
 /** @brief namespace PzStd */
 namespace PzStd {
@@ -18,7 +18,6 @@ enum class PzAnalysisType; /** Enum for types of analysis */
 };                         // namespace PzStd
 
 /** @brief Custom type definitions used in analysis */
-using PzCoreSPtr = std::shared_ptr<PzStd::PzCore>;
 using PzAnalysisImplUPtr = std::unique_ptr<PzStd::PzAnalysisImpl>;
 using PzAnalysisType = PzStd::PzAnalysisType;
 using PzErrorType = PzError::PzErrorType;
@@ -28,12 +27,13 @@ enum class PzStd::PzAnalysisType { /** Enum for analysis types */
                                    PZ_ANALYSIS_TYPE_REGEX
 };
 
+namespace PzStd {
 /**
  * @brief Abstract base class for analysis implementations.
  *
  * All specific analysis types should inherit from this and implement analyze().
  */
-class PzStd::PzAnalysisImpl {
+class PzAnalysisImpl {
 public:
   virtual ~PzAnalysisImpl() = default; /**< Virtual destructor */
   virtual bool analyze(
@@ -50,7 +50,7 @@ protected:
 /**
  * @brief Exact string search
  */
-class PzStd::PzAnalysisExact : public PzStd::PzAnalysisImpl {
+class PzAnalysisExact : public PzAnalysisImpl {
 public:
   explicit PzAnalysisExact(PzCoreSPtr core)
       : PzAnalysisImpl(core) {} //** Constructor */
@@ -61,7 +61,7 @@ public:
 /**
  * @brief Regex search
  */
-class PzStd::PzAnalysisRegex : public PzStd::PzAnalysisImpl {
+class PzAnalysisRegex : public PzAnalysisImpl {
 public:
   explicit PzAnalysisRegex(PzCoreSPtr core)
       : PzAnalysisImpl(core) {} //** Constructor */
@@ -72,7 +72,7 @@ public:
 /**
  * @brief Main PzAnalysis class for string analysis
  */
-class PzStd::PzAnalysis {
+class PzAnalysis {
 
 private:
   PzCoreSPtr core_;         /** Shared pointer to PzCore */
@@ -83,7 +83,7 @@ private:
       PzCoreSPtr core); /** Construct private PzAnalysis with a core instance.*/
 
 public:
-  static PzAnalysis create(
+  static PzAnalysisSPtr create(
       PzCoreSPtr core); //** Method to create PzAnalysis objects accessible */
 
   PzAnalysis(PzAnalysis &&other) noexcept = default; /** Move constructor */
@@ -100,5 +100,9 @@ public:
       PzAnalysisType type, const std::string &pattern,
       std::vector<size_t> &results); /** Perform analysis of the given pattern
                                         using the specified analysis type. */
+
+  friend class PzCore;
 };
+} // namespace PzStd
+
 #endif // PZ_ANALYSIS_HPP

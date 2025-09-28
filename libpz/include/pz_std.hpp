@@ -1,8 +1,6 @@
 #ifndef PZ_STD_HPP
 #define PZ_STD_HPP
 
-#include <pz_analysis.hpp>
-#include <pz_buffer.hpp>
 #include <pz_cxx_std.hpp>
 #include <pz_error.hpp>
 #include <pz_types.hpp>
@@ -26,4 +24,4 @@ using PzBufferSPtr = std::shared_ptr<PzBuffer>;
 using PzAnalysisSPtr = std::shared_ptr<PzAnalysis>;
 }; // namespace PzStd
 
-#endif PZ_STD_HPP
+#endif // PZ_STD_HPP

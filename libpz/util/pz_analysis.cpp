@@ -1,4 +1,5 @@
 #include <pz_analysis.hpp>
+#include <pz_core.hpp>
 #include <pz_error.hpp>
 #include <pz_std.hpp>
 using PzBufferSPtr = std::shared_ptr<PzStd::PzBuffer>;
@@ -13,10 +14,14 @@ namespace PzStd {
  */
 bool PzAnalysisExact::analyze(const std::string &pattern,
                               std::vector<size_t> &results) {
-  PzBufferSPtr *buffer = core_ ? core_->getBuffer() : nullptr;
+  PzBufferSPtr buffer = core_ ? core_->pz_buffer_sptr : nullptr;
+
+  // TODO : Use results
+  results.push_back(0); // To suppress warning
+
   if (buffer == nullptr || pattern.empty()) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT,
-                         "Invalid buffer or empty pattern");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT,
+                          "Invalid buffer or empty pattern");
     return false;
   }
 
@@ -24,8 +29,8 @@ bool PzAnalysisExact::analyze(const std::string &pattern,
     // TODO: Implement actual exact matching
     return true;
   } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_ANALYSIS_FAILED,
-                         "Exact analysis failed: " + std::string(e.what()));
+    PzError::report_error(PzErrorType::PZ_ANALYSIS_FAILED,
+                          "Exact analysis failed: " + std::string(e.what()));
     return false;
   }
 }
@@ -39,19 +44,23 @@ bool PzAnalysisExact::analyze(const std::string &pattern,
  */
 bool PzAnalysisRegex::analyze(const std::string &pattern,
                               std::vector<size_t> &results) {
-  PzBufferSPtr buffer = core_ ? core_->getBuffer() : nullptr;
+  PzBufferSPtr buffer = core_ ? core_->get_buffer() : nullptr;
+
+  // TODO : Use results
+  results.push_back(0); // To suppress warning
+
   if (buffer == nullptr || pattern.empty()) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT,
-                         "Invalid buffer or empty pattern");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT,
+                          "Invalid buffer or empty pattern");
     return false;
   }
 
   try {
     // TODO: Implement actual regex search
     return true;
-  } catch (const std::regex_error &e) {
-    PzError::reportError(PzErrorType::PZ_ANALYSIS_FAILED,
-                         "Regex analysis failed: " + std::string(e.what()));
+  } catch (const std::exception &e) {
+    PzError::report_error(PzErrorType::PZ_ANALYSIS_FAILED,
+                          "Regex analysis failed: " + std::string(e.what()));
     return false;
   }
 }
@@ -64,7 +73,8 @@ bool PzAnalysisRegex::analyze(const std::string &pattern,
  */
 PzAnalysis::PzAnalysis(PzCoreSPtr core) : core_(std::move(core)) {
   if (core_ == nullptr) {
-    PzError::reportError(PzErrorType::PZ_INVALID_INPUT, "Null PzCore provided");
+    PzError::report_error(PzErrorType::PZ_INVALID_INPUT,
+                          "Null PzCore provided");
   }
 }
 
@@ -75,8 +85,8 @@ PzAnalysis::PzAnalysis(PzCoreSPtr core) : core_(std::move(core)) {
  * @param core Shared pointer to a PzCore instance.
  * @return PzAnalysis A new PzAnalysis object initialized with the given core.
  */
-PzAnalysis PzAnalysis::create(PzCoreSPtr core) {
-  return PzAnalysis(std::move(core));
+PzAnalysisSPtr PzAnalysis::create(PzCoreSPtr core) {
+  return PzAnalysisSPtr(new PzAnalysis(std::move(core)));
 }
 
 /**
@@ -100,16 +110,16 @@ bool PzAnalysis::performAnalysis(PzAnalysisType type,
         impl_ = std::make_unique<PzAnalysisRegex>(core_);
         break;
       default:
-        PzError::reportError(PzErrorType::PZ_INVALID_ANALYSIS_TYPE,
-                             "Unknown analysis type");
+        PzError::report_error(PzErrorType::PZ_INVALID_ANALYSIS_TYPE,
+                              "Unknown analysis type");
         return false;
       }
       curr_type_ = type;
     }
     return impl_->analyze(pattern, results);
   } catch (const std::exception &e) {
-    PzError::reportError(PzErrorType::PZ_ANALYSIS_FAILED,
-                         "Analysis failed: " + std::string(e.what()));
+    PzError::report_error(PzErrorType::PZ_ANALYSIS_FAILED,
+                          "Analysis failed: " + std::string(e.what()));
     return false;
   }
 }

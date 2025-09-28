@@ -1,10 +1,10 @@
 #ifndef PZ_BUFFER_HPP
 #define PZ_BUFFER_HPP
+
 #include <pz_cxx_std.hpp>
 #include <pz_error.hpp>
 #include <pz_std.hpp>
 #include <pz_types.hpp>
-class PzStd::PzCore;
 
 /** @brief namespace PzStd */
 namespace PzStd {
@@ -37,20 +37,14 @@ enum class PzStd::PzBufferType : st32 {
 /**
  * @brief Main buffer class for text storage and processing
  */
-class PzStd::PzBuffer {
+namespace PzStd {
+class PzBuffer {
 private:
   PzBufferType storage_type_; /**< Current storage mode flag */
   ut64 total_characters_ = 0; /**< Total number of characters stored */
 
-  // Create buffer instance via smart pointer.
-  static std::shared_ptr<PzBuffer>
-  create(PzBufferType flag =
-             PzBufferType::PZ_BUF_TYPE_SEQUENTIAL); // Storage optimization
-                                                    // (default: SEQUENTIAL).
   // Private constructor ensures only PzCore can create buffers.
   explicit PzBuffer(PzBufferType flag = PzBufferType::PZ_BUF_TYPE_SEQUENTIAL);
-
-  ~PzBuffer() = default; // Default destructor.
 
   PzBuffer(PzBuffer &&other) noexcept; // Move constructor - efficient resource
                                        // transfer
@@ -141,6 +135,10 @@ public:
 
   // Method to clear the buffer
   void clear() noexcept;
+
+  static std::shared_ptr<PzBuffer>
+  create(PzBufferType type = PzBufferType::PZ_BUF_TYPE_SEQUENTIAL);
 };
+} // namespace PzStd
 
 #endif // PZ_BUFFER_HPP
