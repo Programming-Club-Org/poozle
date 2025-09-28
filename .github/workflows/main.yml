@@ -1,4 +1,4 @@
-name: Clang Format Checker
+name: Clang Format & Meson Build Check
 
 on:
   pull_request:
@@ -45,3 +45,22 @@ jobs:
             echo "Some files are not properly formatted. Run clang-format-16 locally to fix."
             exit 1
           fi
+
+  meson-build-check:
+    runs-on: ubuntu-latest
+    needs: clang-format-checking
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build meson g++ cmake pkg-config
+
+      - name: Configure Meson build
+        run: |
+          meson setup builddir --buildtype=debug -Dcpp_std=c++17
+
+      - name: Compile project
+        run: |
+          meson compile -C builddir
