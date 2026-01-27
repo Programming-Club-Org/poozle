@@ -97,12 +97,11 @@ def generate_tests_random():
             
         write_test_case(f_in, f_out, text_10k, queries_10k)
 
-def generate_50mb():
-    input_filepath = "TestCases/Input/50MB.txt"
-    output_filepath = "TestCases/ExpectedOutput/50MB.txt"
+def generate_35mb():
+    input_filepath = "TestCases/Input/35MB.txt"
+    output_filepath = "TestCases/ExpectedOutput/35MB.txt"
 
-    # 100MB file
-    target_size = 100 * 1024 * 1024
+    target_size = 35 * 1024 * 1024
     alphabet = "abcdefghijklmnopqrstuvwxyz. $'@#?/,;:-_"
     
     chunk_size = 1024 * 1024 
@@ -178,4 +177,4 @@ def generate_10mb():
 if __name__ == "__main__":
     generate_tests_random()
     generate_10mb()
-   # generate_50mb()
+    generate_35mb()
