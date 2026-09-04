@@ -5,7 +5,7 @@
 namespace PzError {
 enum class PzErrorType;
 // other error / warning related functions or enums
-void report_error(PzErrorType type, const std::string &message) {
+inline void report_error(PzErrorType type, const std::string &message) {
   throw std::runtime_error("PzError " + message + " (Code: " +
                            std::to_string(static_cast<int>(type)) + ")");
 }
@@ -20,6 +20,8 @@ enum class PzError::PzErrorType {
   PZ_ANALYSIS_FAILED,
   PZ_INVALID_ANALYSIS_TYPE,
   PZ_FILE_NOT_FOUND,
+  PZ_LONG_PATTERN_ERROR
 };
+
 
 #endif // PZ_ERROR_HPP
