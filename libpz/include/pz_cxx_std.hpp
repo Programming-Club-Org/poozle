@@ -4,6 +4,7 @@
 // All standard C++ libraries used for project
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <map>
