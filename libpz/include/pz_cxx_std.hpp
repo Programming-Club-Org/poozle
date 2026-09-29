@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -18,6 +19,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #endif // PZ_CXX_STD_HPP

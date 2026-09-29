@@ -20,6 +20,8 @@ enum class PzError::PzErrorType {
   PZ_ANALYSIS_FAILED,
   PZ_INVALID_ANALYSIS_TYPE,
   PZ_FILE_NOT_FOUND,
+  PZ_LONG_PATTERN_ERROR
 };
+
 
 #endif // PZ_ERROR_HPP
