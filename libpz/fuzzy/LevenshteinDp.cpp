@@ -1,25 +1,35 @@
 #include "LevenshteinDp.hpp"
+#include "NGram.hpp"
 #include <algorithm>
+#include <cstdint>
 #include <string>
 #include <vector>
 
 /**
- * @brief Computes the Levenshtein distance using a DP approach.
+ * @brief Computes the Levenshtein distance using a DP approach,
+ *        filtered by a preliminary trigram overlap threshold.
  *
  * @param sourceString The source string.
  * @param targetString The target string.
- * @return st32 The edit distance between the two strings.
+ * @return st32 The edit distance between the two strings, or -1 if filtered
+ * out.
  */
-
 st32 levenshteinDistance(const std::string &sourceString,
                          const std::string &targetString) {
-  st32 sourceLength = sourceString.length();
-  st32 targetLength = targetString.length();
+  // Edge cases
+  if (sourceString.empty())
+    return static_cast<st32>(targetString.length());
+  if (targetString.empty())
+    return static_cast<st32>(sourceString.length());
 
-  if (sourceLength == 0)
-    return targetLength;
-  if (targetLength == 0)
-    return sourceLength;
+  // Pre-filter using trigram similarity (score threshold > 70%)
+  double ngramScore = trigramJaccardSimilarity(sourceString, targetString);
+  if (ngramScore < 0.70) {
+    return -1;
+  }
+
+  st32 sourceLength = static_cast<st32>(sourceString.length());
+  st32 targetLength = static_cast<st32>(targetString.length());
 
   std::vector<st32> prevRow(targetLength + 1);
   std::vector<st32> curRow(targetLength + 1);
