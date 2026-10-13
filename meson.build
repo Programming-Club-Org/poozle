@@ -15,6 +15,13 @@ add_project_arguments(
   language : 'cpp'
 )
 
+sanitizer = get_option('sanitizer')
+if sanitizer != 'none'
+  san_flags = ['-fsanitize=' + sanitizer, '-fno-omit-frame-pointer']
+  add_project_arguments(cc.get_supported_arguments(san_flags), language : 'cpp')
+  add_project_link_arguments(cc.get_supported_link_arguments(san_flags), language : 'cpp')
+endif
+
 subdir('libpz')
 
 # Optional gtest suite (meson_options.txt → -Dtests=enabled|disabled).
